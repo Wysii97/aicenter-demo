@@ -1,0 +1,656 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>輔大醫院 AI Center</title>
+    <!-- 引入 Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- 引入 React 與 ReactDOM -->
+    <script src="https://unpkg.com/react@18/umd/react.development.js"></script>
+    <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
+    <!-- 引入 Babel 用於解析 JSX -->
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    <!-- 引入 Lucide 圖示 -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <style>
+        body { font-family: 'PingFang TC', 'Microsoft JhengHei', sans-serif; }
+    </style>
+</head>
+<body>
+    <div id="root"></div>
+
+    <script type="text/babel">
+        const { useState, useEffect } = React;
+
+        // 建立一個簡易的 Icon 元件來替代 lucide-react，解決 CDN 載入順序與相依性問題
+        const Icon = ({ name, size = 24, className = "" }) => {
+            useEffect(() => {
+                if (window.lucide) {
+                    window.lucide.createIcons();
+                }
+            }, [name]);
+            return <i data-lucide={name} style={{ width: size, height: size }} className={className}></i>;
+        };
+
+        const App = () => {
+          const [isMenuOpen, setIsMenuOpen] = useState(false);
+          const [activeTab, setActiveTab] = useState('home');
+          const [activeDropdown, setActiveDropdown] = useState(null);
+
+          // 切換頁面功能
+          const navigateTo = (page) => {
+            setActiveTab(page);
+            setIsMenuOpen(false);
+            setActiveDropdown(null);
+            window.scrollTo(0, 0);
+          };
+
+          // 渲染導覽列
+          const NavItem = ({ label, id, subItems }) => {
+            const hasSubItems = subItems && subItems.length > 0;
+            const isActive = activeTab === id || (subItems && subItems.some(sub => sub.id === activeTab));
+            
+            return (
+              <div 
+                className="relative group h-full flex items-center"
+                onMouseEnter={() => hasSubItems && setActiveDropdown(id)}
+                onMouseLeave={() => hasSubItems && setActiveDropdown(null)}
+              >
+                <button 
+                  onClick={() => !hasSubItems && navigateTo(id)}
+                  className={`flex items-center px-3 py-2 text-sm font-medium transition-colors hover:text-blue-600 ${isActive ? 'text-blue-700 border-b-2 border-blue-700' : 'text-gray-700'}`}
+                >
+                  {label}
+                  {hasSubItems && <Icon name="chevron-down" size={16} className="ml-1" />}
+                </button>
+                
+                {hasSubItems && activeDropdown === id && (
+                  <div className="absolute left-0 top-[100%] w-60 bg-white border border-gray-100 shadow-xl z-50 rounded-b-lg overflow-hidden animate-in fade-in slide-in-from-top-2">
+                    {subItems.map((sub) => (
+                      <button
+                        key={sub.id}
+                        onClick={() => navigateTo(sub.id)}
+                        className="block w-full text-left px-4 py-3 text-sm text-gray-600 hover:bg-blue-50 hover:text-blue-700 border-b border-gray-50 last:border-none"
+                      >
+                        {sub.label}
+                      </button>
+                    ))}
+                  </div>
+                )}
+              </div>
+            );
+          };
+
+          return (
+            <div className="min-h-screen bg-gray-50 flex flex-col font-sans">
+              {/* --- 頂部快速功能列 --- */}
+              <div className="bg-blue-900 text-white py-1 px-4 text-xs hidden md:block">
+                <div className="max-w-7xl mx-auto flex justify-between items-center">
+                  <div className="flex space-x-4">
+                    <button className="hover:underline">回輔大醫院官網</button>
+                    <button className="hover:underline">輔仁大學首頁</button>
+                  </div>
+                  <div className="flex items-center space-x-4">
+                    <div className="flex items-center">
+                      <Icon name="search" size={12} className="mr-1" />
+                      <input 
+                        type="text" 
+                        placeholder="全站搜尋..." 
+                        className="bg-blue-800 border-none text-white px-2 py-0.5 rounded focus:ring-1 focus:ring-blue-400 w-32 outline-none"
+                      />
+                    </div>
+                    <button className="flex items-center hover:text-blue-200">
+                      <Icon name="globe" size={12} className="mr-1" />
+                      English
+                    </button>
+                  </div>
+                </div>
+              </div>
+
+              {/* --- 主要導覽列 --- */}
+              <header className="bg-white shadow-sm sticky top-0 z-40">
+                <div className="max-w-7xl mx-auto px-4">
+                  <div className="flex justify-between items-center h-20">
+                    {/* Logo */}
+                    <div className="flex items-center cursor-pointer" onClick={() => navigateTo('home')}>
+                      
+                      {/* ============================================================== */}
+                      {/* 📝 替換 LOGO 說明區塊 */}
+                      {/* 如果您想換成自己的圖片 Logo，請將下面這個 div (包含 Cpu 圖示) 刪除 */}
+                      <img src="橫-天主教輔仁大學附設醫院.png" alt="Logo" className="h-12 mr-3 object-contain" />
+                      {/* 💡 並將其替換為類似下方的 img 標籤（請確保圖片與 html 檔案在同一個資料夾）： */}
+                      {/* <img src="橫-天主教輔仁大學附設醫院.png" alt="Logo" className="h-12 mr-3 object-contain" /> */}
+                      {/* ============================================================== */}
+
+                      <div>
+                        <h1 className="text-xl font-bold text-blue-900 leading-tight text-left">輔大醫院 AI Center</h1>
+                        <p className="text-[10px] text-gray-500 tracking-widest uppercase text-left">Center for Artificial Intelligence, FJUCH</p>
+                      </div>
+                    </div>
+
+                    {/* Desktop Menu */}
+                    <nav className="hidden lg:flex items-center h-full space-x-1">
+                      <NavItem label="首頁" id="home" />
+                      <NavItem label="消息公告" id="news" />
+                      <NavItem label="中心簡介" id="intro" subItems={[
+                        { label: '組織架構', id: 'org' },
+                        { label: '聯絡我們', id: 'contact' }
+                      ]} />
+                      <NavItem label="相關成果" id="results" subItems={[
+                        { label: '得獎及認證', id: 'awards' },
+                        { label: '期刊論文', id: 'papers' },
+                        { label: '相關專利', id: 'patents' }
+                      ]} />
+                      <NavItem label="智慧應用" id="apps" subItems={[
+                        { label: 'BBC 報導 AI 應用', id: 'bbc' },
+                        { label: 'Robot 機器人應用', id: 'robot' },
+                        { label: '醫療影像 AI 應用', id: 'imaging' }
+                      ]} />
+                      <NavItem label="負責任 AI" id="rai" subItems={[
+                        { label: '關於我們', id: 'rai-about' },
+                        { label: '三大落地實施策略', id: 'rai-strategy' },
+                        { label: '九大透明性指標', id: 'rai-principles' },
+                        { label: '本期 AI 實例', id: 'rai-cases' },
+                        { label: '線上申請', id: 'rai-apply' }
+                      ]} />
+                      <NavItem label="影響性研究" id="impact" />
+                    </nav>
+
+                    {/* Mobile Menu Button */}
+                    <div className="lg:hidden flex items-center">
+                      <button onClick={() => setIsMenuOpen(!isMenuOpen)} className="p-2 text-gray-600">
+                        {isMenuOpen ? <Icon name="x" /> : <Icon name="menu" />}
+                      </button>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Mobile Sidebar */}
+                {isMenuOpen && (
+                  <div className="lg:hidden bg-white border-t border-gray-100 h-[calc(100vh-80px)] overflow-y-auto">
+                    <div className="px-4 py-6 space-y-4">
+                      <button onClick={() => navigateTo('home')} className="block w-full text-left font-bold py-2 border-b text-left">首頁</button>
+                      <div className="py-2">
+                        <p className="font-bold text-blue-800 mb-2 text-left">負責任 AI 執行中心</p>
+                        <button onClick={() => navigateTo('rai-principles')} className="block w-full text-left pl-4 py-2 text-gray-600 text-left">九大透明性指標</button>
+                        <button onClick={() => navigateTo('rai-strategy')} className="block w-full text-left pl-4 py-2 text-gray-600 text-left">三大落地實施策略</button>
+                        <button onClick={() => navigateTo('rai-apply')} className="block w-full text-left pl-4 py-2 text-gray-600 font-bold text-blue-600 text-left">線上申請流程</button>
+                      </div>
+                      <button onClick={() => navigateTo('contact')} className="block w-full bg-blue-700 text-white text-center py-3 rounded-lg font-bold">
+                        聯繫我們
+                      </button>
+                    </div>
+                  </div>
+                )}
+              </header>
+
+              {/* --- 主要內容區塊 --- */}
+              <main className="flex-grow">
+                {activeTab === 'home' && <HomePage onNavigate={navigateTo} />}
+                {activeTab === 'rai-strategy' && <RAIStrategyPage />}
+                {activeTab === 'rai-principles' && <RAIPrinciplesPage />}
+                {activeTab === 'rai-apply' && <ApplicationPage />}
+                {activeTab === 'news' && <NewsPage />}
+                {activeTab === 'awards' && <AwardsPage />}
+                {activeTab === 'impact' && <ImpactCenterPage />}
+                
+                {/* 其他頁面預留位置 */}
+                {['org', 'contact', 'papers', 'patents', 'bbc', 'robot', 'imaging', 'rai-about', 'rai-cases'].includes(activeTab) && (
+                  <div className="max-w-4xl mx-auto py-20 px-4 text-center">
+                    <div className="inline-block p-4 bg-blue-50 rounded-full mb-4">
+                      <Icon name="activity" size={48} className="text-blue-600" />
+                    </div>
+                    <h2 className="text-2xl font-bold text-gray-800 mb-2">頁面內容整理中</h2>
+                    <p className="text-gray-500">正在為您準備「{activeTab}」的詳細資訊，請耐心等待。</p>
+                    <button onClick={() => setActiveTab('home')} className="mt-8 text-blue-600 font-medium hover:underline">返回首頁</button>
+                  </div>
+                )}
+              </main>
+
+              {/* --- 頁腳 --- */}
+              <footer className="bg-gray-900 text-gray-300">
+                <div className="max-w-7xl mx-auto px-4 py-12">
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-12">
+                    {/* 醫院聯絡 */}
+                    <div>
+                      <h3 className="text-white font-bold text-lg mb-6 text-left">輔大醫院 AI Center</h3>
+                      <ul className="space-y-3 text-sm">
+                        <li className="flex items-start italic text-left">「以病患為中心，用 AI 傳遞愛與關懷」</li>
+                        <li className="flex items-center text-left"><Icon name="mail" size={16} className="mr-3 text-blue-400" /> ai-center@fjuh.fju.edu.tw</li>
+                        <li className="flex items-center text-left"><Icon name="phone" size={16} className="mr-3 text-blue-400" /> (02) 8512-8888 </li>
+                        <li className="mt-6 flex space-x-4">
+                          <a href="#" className="p-2 bg-gray-800 rounded-full hover:bg-blue-600 transition-colors flex items-center justify-center">
+                            <Icon name="facebook" size={20} />
+                          </a>
+                          <a href="#" className="flex items-center text-sm hover:text-white underline decoration-blue-500">
+                            <Icon name="external-link" size={16} className="mr-1" /> 輔大醫院官網
+                          </a>
+                        </li>
+                      </ul>
+                    </div>
+
+                    {/* 校院協作 */}
+                    <div>
+                      <h3 className="text-white font-bold text-lg mb-6 text-left">跨域協作單位</h3>
+                      <div className="grid grid-cols-1 gap-3 text-sm">
+                        <a href="#" className="hover:text-blue-400 flex items-center text-left">
+                          <Icon name="graduation-cap" size={16} className="mr-2" /> 輔仁大學醫學院 / 理工學院
+                        </a>
+                        <a href="#" className="hover:text-blue-400 flex items-center text-left">
+                          <Icon name="graduation-cap" size={16} className="mr-2" /> 輔仁大學管理學院 (大數據中心)
+                        </a>
+                        <a href="#" className="hover:text-blue-400 flex items-center text-left">
+                          <Icon name="users" size={16} className="mr-2" /> 輔大附設醫院臨床試驗中心
+                        </a>
+                      </div>
+                    </div>
+
+                    {/* 版權資訊 */}
+                    <div className="flex flex-col justify-between">
+                      <div>
+                        <h3 className="text-white font-bold text-lg mb-4 text-left">網站導覽</h3>
+                        <div className="text-xs space-y-2 text-left">
+                          <p>地址：24352 新北市泰山區貴子路 69 號</p>
+                        </div>
+                      </div>
+                      <div className="mt-8 text-left">
+                        <p className="text-xs text-gray-500">© 2024 FJUCH AI Center. All Rights Reserved.</p>
+                        <p className="text-[10px] text-gray-600 mt-1">輔大醫院 人工智慧執行中心 版權所有</p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </footer>
+            </div>
+          );
+        };
+
+        // --- 子頁面組件 ---
+
+        const HomePage = ({ onNavigate }) => (
+          <div className="animate-in fade-in duration-700">
+            {/* Hero Section */}
+            <section className="relative h-[600px] flex items-center bg-blue-900 overflow-hidden">
+              <div className="absolute inset-0 opacity-10 bg-[url('https://images.unsplash.com/photo-1550751827-4bd374c3f58b?auto=format&fit=crop&q=80')] bg-cover bg-center"></div>
+              <div className="absolute inset-0 bg-gradient-to-r from-blue-900 via-blue-900/80 to-transparent"></div>
+              
+              <div className="max-w-7xl mx-auto px-4 relative z-10 w-full">
+                <div className="max-w-2xl text-left">
+                  <div className="inline-flex items-center px-4 py-1.5 bg-blue-700/50 backdrop-blur-sm border border-blue-400/30 text-blue-100 rounded-full text-xs font-bold mb-6">
+                    <Icon name="shield-check" size={16} className="mr-2" /> 落實九大透明指標 ・ 負責任 AI 
+                  </div>
+                  <h2 className="text-4xl md:text-6xl font-extrabold text-white mb-6 leading-tight">
+                    從演算法到臨床<br/>實踐「有溫度」的 AI
+                  </h2>
+                  <p className="text-xl text-blue-100 mb-10 opacity-90 leading-relaxed">
+                    依託輔仁大學綜合學系優勢，我們致力於開發具備公平性、安全性與可解釋性的醫療 AI 解決方案，為在地病患提供精準醫療服務。
+                  </p>
+                  <div className="flex flex-wrap gap-4">
+                    <button 
+                      onClick={() => onNavigate('rai-principles')}
+                      className="px-8 py-4 bg-white text-blue-900 font-bold rounded-xl hover:bg-blue-50 transition-all shadow-xl flex items-center"
+                    >
+                      九大透明指標 <Icon name="eye" size={20} className="ml-2 text-blue-600" />
+                    </button>
+                    <button 
+                      onClick={() => onNavigate('rai-apply')}
+                      className="px-8 py-4 bg-blue-600 text-white font-bold rounded-xl hover:bg-blue-500 transition-all shadow-xl flex items-center"
+                    >
+                      線上申請開發 <Icon name="send" size={20} className="ml-2" />
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </section>
+
+            {/* 輔醫特性特色區塊 */}
+            <section className="py-24 bg-white">
+              <div className="max-w-7xl mx-auto px-4 text-center">
+                <h2 className="text-3xl md:text-4xl font-black text-gray-900 mb-16">為什麼選擇輔醫 AI Center？</h2>
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-12">
+                  <div className="p-8 bg-gray-50 rounded-3xl transition-transform hover:-translate-y-2">
+                    <div className="w-16 h-16 bg-blue-100 text-blue-700 rounded-2xl flex items-center justify-center mx-auto mb-6">
+                      <Icon name="graduation-cap" size={32} />
+                    </div>
+                    <h3 className="text-xl font-bold mb-4 text-gray-800">理工醫跨域合作</h3>
+                    <p className="text-gray-600 text-sm leading-relaxed">
+                      緊密連結輔仁大學理工學院與資工系，擁有充沛的研發能量與頂尖演算法工程人才。
+                    </p>
+                  </div>
+                  <div className="p-8 bg-gray-50 rounded-3xl transition-transform hover:-translate-y-2">
+                    <div className="w-16 h-16 bg-green-100 text-green-700 rounded-2xl flex items-center justify-center mx-auto mb-6">
+                      <Icon name="shield-check" size={32} />
+                    </div>
+                    <h3 className="text-xl font-bold mb-4 text-gray-800">負責任的開發原則</h3>
+                    <p className="text-gray-600 text-sm leading-relaxed">
+                      身為天主教醫院，我們極度重視 AI 倫理與人文價值，確保科技應用不失溫度。
+                    </p>
+                  </div>
+                  <div className="p-8 bg-gray-50 rounded-3xl transition-transform hover:-translate-y-2">
+                    <div className="w-16 h-16 bg-purple-100 text-purple-700 rounded-2xl flex items-center justify-center mx-auto mb-6">
+                      <Icon name="users" size={32} />
+                    </div>
+                    <h3 className="text-xl font-bold mb-4 text-gray-800">產學在地實踐</h3>
+                    <p className="text-gray-600 text-sm leading-relaxed">
+                      作為新北智慧醫療示範點，提供豐富的臨床驗證場域，加速研究成果商品化。
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </section>
+          </div>
+        );
+
+        const RAIPrinciplesPage = () => {
+          const principles = [
+            { 
+              title: "介入目的", 
+              iconName: "target", 
+              color: "text-blue-600",
+              bg: "bg-blue-50",
+              desc: "明確說明 AI 系統所欲解決的臨床問題、預期用途及其在醫療流程中的功能。" 
+            },
+            { 
+              title: "介入詳情與輸出", 
+              iconName: "file-text", 
+              color: "text-indigo-600",
+              bg: "bg-indigo-50",
+              desc: "詳述 AI 的介入形式、輸出內容以及最終如何對臨床決策產生實質影響。" 
+            },
+            { 
+              title: "介入的警告範圍外使用", 
+              iconName: "alert-triangle", 
+              color: "text-orange-600",
+              bg: "bg-orange-50",
+              desc: "清楚標示模型不適用之情境、侷限性及在建議範圍外使用的潛在風險。" 
+            },
+            { 
+              title: "介入開發詳情及輸入特徵", 
+              iconName: "code", 
+              color: "text-teal-600",
+              bg: "bg-teal-50",
+              desc: "披露演算法開發架構、使用數據特徵、訓練過程與輸入之臨床關鍵參數。" 
+            },
+            { 
+              title: "確保開發過程公平性的措施", 
+              iconName: "scale", 
+              color: "text-purple-600",
+              bg: "bg-purple-50",
+              desc: "揭示針對不同族群、性別或年齡之數據偏移矯正措施，以防止算法產生不當偏見。" 
+            },
+            { 
+              title: "外部驗證過程", 
+              iconName: "clipboard-check", 
+              color: "text-cyan-600",
+              bg: "bg-cyan-50",
+              desc: "說明使用獨立於訓練集之外的第三方臨床數據進行效能驗證的詳細過程與結果。" 
+            },
+            { 
+              title: "性能的量化指標", 
+              iconName: "bar-chart-3", 
+              color: "text-green-600",
+              bg: "bg-green-50",
+              desc: "提供包含準確度、敏感度、特異性等關鍵性能指標的量化統計數據與報表。" 
+            },
+            { 
+              title: "介入實施和使用的持續維護", 
+              iconName: "settings", 
+              color: "text-slate-600",
+              bg: "bg-slate-50",
+              desc: "說明系統部署後的持續監測機制、軟體維管、臨床技術支援與錯誤排除流程。" 
+            },
+            { 
+              title: "持續更新和公平性評估計劃", 
+              iconName: "calendar", 
+              color: "text-indigo-700",
+              bg: "bg-indigo-100",
+              desc: "建立長期模型再訓練、公平性覆核與效能定期校準的制度化計畫。" 
+            }
+          ];
+
+          return (
+            <div className="bg-white min-h-screen animate-in fade-in duration-500">
+              <div className="bg-gray-50 py-20 border-b">
+                <div className="max-w-4xl mx-auto px-4 text-center">
+                  <span className="inline-block px-3 py-1 bg-blue-100 text-blue-700 rounded-full text-xs font-bold mb-4 uppercase">Trust & Transparency</span>
+                  <h2 className="text-4xl font-black text-blue-900 mb-6 tracking-tight underline decoration-blue-500 decoration-8 underline-offset-8">AI 透明性九大指標</h2>
+                  <p className="text-xl text-gray-600">建立負責任、可信任且符合臨床安全規範的醫療 AI 生態系</p>
+                </div>
+              </div>
+
+              <div className="max-w-7xl mx-auto py-24 px-4">
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                  {principles.map((p, idx) => (
+                    <div key={idx} className="group p-8 bg-white border border-gray-100 rounded-[2.5rem] shadow-sm hover:shadow-xl transition-all duration-300">
+                      <div className={`w-16 h-16 ${p.bg} ${p.color} rounded-2xl flex items-center justify-center mb-8 group-hover:scale-110 transition-transform shadow-inner`}>
+                        <Icon name={p.iconName} size={32} />
+                      </div>
+                      <h3 className="text-xl font-bold mb-4 text-gray-800 text-left">{p.title}</h3>
+                      <p className="text-gray-500 text-sm leading-relaxed text-left">
+                        {p.desc}
+                      </p>
+                    </div>
+                  ))}
+                </div>        
+              </div>
+            </div>
+          );
+        };
+
+        const RAIStrategyPage = () => (
+          <div className="bg-white">
+            <div className="bg-gray-50 py-16 border-b">
+              <div className="max-w-4xl mx-auto px-4 text-center">
+                <h2 className="text-4xl font-black text-blue-900 mb-6 underline decoration-blue-500 decoration-8 underline-offset-8">三大落地實施策略</h2>
+                <p className="text-xl text-gray-600">建立負責任、可信任且符合臨床安全規範的醫療 AI 生態系</p>
+              </div>
+            </div>
+
+            <div className="max-w-5xl mx-auto py-20 px-4">
+              <div className="space-y-32">
+                <div className="flex flex-col md:flex-row gap-12 items-center">
+                  <div className="flex-1 text-left">
+                    <div className="text-blue-600 font-mono text-xl font-bold mb-2 uppercase">Strategy 01</div>
+                    <h3 className="text-3xl font-bold mb-6 flex items-center">
+                      <Icon name="eye" size={32} className="mr-3 text-blue-600" /> 演算法透明與解釋性
+                    </h3>
+                    <div className="space-y-4 text-gray-600 leading-relaxed">
+                      <p>我們拒絕「黑盒子」醫療！每一套導入臨床的 AI 模型，都必須經過可解釋性評估：</p>
+                      <ul className="list-disc pl-6 space-y-2">
+                        <li><strong>決策熱區顯示</strong>：對於醫學影像 AI，必須能標註出模型判斷的關鍵區域。</li>
+                        <li><strong>特徵影響度分析</strong>：結構化數據模型需列出各項生理指標對結果的貢獻度。</li>
+                        <li><strong>臨床醫囑輔助</strong>：AI 僅作為「建議」，最終決策權由醫師結合解釋資料決定。</li>
+                      </ul>
+                    </div>
+                  </div>
+                  <div className="flex-1 bg-blue-50 p-10 rounded-[40px] border-2 border-dashed border-blue-200">
+                    <div className="bg-white p-6 rounded-2xl shadow-sm">
+                      <div className="flex items-center justify-between mb-4">
+                        <span className="text-sm font-bold">模型透明度評分</span>
+                        <span className="text-blue-600 font-bold">98%</span>
+                      </div>
+                      <div className="h-2 w-full bg-gray-100 rounded-full">
+                        <div className="h-full w-[98%] bg-blue-600 rounded-full"></div>
+                      </div>
+                      <div className="mt-6 text-xs text-gray-400 space-y-1 text-left">
+                        <p>✓ SHAP Values 驗證通過</p>
+                        <p>✓ Grad-CAM 視覺化支援</p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="flex flex-col md:flex-row-reverse gap-12 items-center">
+                  <div className="flex-1 text-left">
+                    <div className="text-green-600 font-mono text-xl font-bold mb-2 uppercase">Strategy 02</div>
+                    <h3 className="text-3xl font-bold mb-6 flex items-center">
+                      <Icon name="activity" size={32} className="mr-3 text-green-600" /> 臨床安全性與效能監測
+                    </h3>
+                    <div className="space-y-4 text-gray-600 leading-relaxed">
+                      <p>AI 不是部署完就結束，而是需要持續的「生命週期管理」：</p>
+                      <ul className="list-disc pl-6 space-y-2">
+                        <li><strong>定期校正機制</strong>：每季針對最新臨床數據進行模型效能重新測試與回饋。</li>
+                        <li><strong>異常警示系統</strong>：當輸入數據與訓練集分佈嚴重偏移（Data Drift）時，系統自動警示並暫停服務。</li>
+                        <li><strong>不良事件通報</strong>：建立專屬管道，醫師可隨時回報 AI 誤判，進入快速覆核流程。</li>
+                      </ul>
+                    </div>
+                  </div>
+                  <div className="flex-1 bg-green-50 p-10 rounded-[40px] border-2 border-dashed border-green-200">
+                     <div className="bg-white p-6 rounded-2xl shadow-sm">
+                        <h4 className="text-sm font-bold mb-4 text-left">實時監測面板</h4>
+                        <div className="flex space-x-2 items-end h-24">
+                          {[40, 60, 45, 90, 85, 95, 88].map((h, i) => (
+                            <div key={i} className="bg-green-400 w-full rounded-t" style={{ height: `${h}%` }}></div>
+                          ))}
+                        </div>
+                        <p className="text-center text-[10px] text-gray-400 mt-4">臨床模型穩定度追蹤 (Stability Score)</p>
+                     </div>
+                  </div>
+                </div>
+
+                <div className="flex flex-col md:flex-row gap-12 items-center">
+                  <div className="flex-1 text-left">
+                    <div className="text-purple-600 font-mono text-xl font-bold mb-2 uppercase">Strategy 03</div>
+                    <h3 className="text-3xl font-bold mb-6 flex items-center">
+                      <Icon name="shield-alert" size={32} className="mr-3 text-purple-600" /> 隱私保護與倫理規範
+                    </h3>
+                    <div className="space-y-4 text-gray-600 leading-relaxed">
+                      <p>嚴格遵守法律與倫理底線，確保病患資安與權益無虞：</p>
+                      <ul className="list-disc pl-6 space-y-2">
+                        <li><strong>聯邦學習與去識別化</strong>：開發過程數據不出院，符合 HIPAA 與國內個資法。</li>
+                        <li><strong>IRB 審查結合</strong>：所有 AI 落地計畫皆需通過人體試驗委員會與負責任 AI 專家小組雙重審查。</li>
+                        <li><strong>偏見檢測</strong>：針對不同性別、年齡組進行公平性測試，防止算法偏見影響治療權益。</li>
+                      </ul>
+                    </div>
+                  </div>
+                  <div className="flex-1 bg-purple-50 p-10 rounded-[40px] border-2 border-dashed border-purple-200">
+                    <div className="grid grid-cols-2 gap-4">
+                      <div className="bg-white p-4 rounded-xl text-center">
+                        <Icon name="shield-check" size={32} className="text-purple-600 mx-auto mb-2" />
+                        <p className="text-xs font-bold">去識別化 100%</p>
+                      </div>
+                      <div className="bg-white p-4 rounded-xl text-center">
+                        <Icon name="users" size={32} className="text-purple-600 mx-auto mb-2" />
+                        <p className="text-xs font-bold">公平性校準</p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        );
+
+        const ApplicationPage = () => (
+          <div className="max-w-4xl mx-auto py-12 px-4">
+            <div className="bg-white rounded-3xl shadow-xl overflow-hidden border border-gray-100 animate-in slide-in-from-bottom duration-500">
+              <div className="bg-blue-700 px-8 py-10 text-white text-left">
+                <h2 className="text-3xl font-bold mb-2">AI 落地應用申請</h2>
+                <p className="opacity-90">本申請由輔醫 AI 中心與資工系專家共同審核，請填寫基本提案內容。</p>
+              </div>
+              <div className="p-8">
+                <form className="space-y-6" onSubmit={(e) => e.preventDefault()}>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div className="text-left">
+                      <label className="block text-sm font-bold text-gray-700 mb-1">主責醫師/研究員</label>
+                      <input type="text" className="w-full border-gray-300 rounded-lg p-3 border outline-none focus:ring-2 focus:ring-blue-500" placeholder="請輸入全名" />
+                    </div>
+                    <div className="text-left">
+                      <label className="block text-sm font-bold text-gray-700 mb-1">聯絡分機/Email</label>
+                      <input type="text" className="w-full border-gray-300 rounded-lg p-3 border outline-none focus:ring-2 focus:ring-blue-500" placeholder="Ext. 8xxx" />
+                    </div>
+                  </div>
+                  <div className="text-left">
+                    <label className="block text-sm font-bold text-gray-700 mb-1">計畫名稱</label>
+                    <input type="text" className="w-full border-gray-300 rounded-lg p-3 border outline-none focus:ring-2 focus:ring-blue-500" placeholder="例如：智慧心臟超音波即時判讀系統" />
+                  </div>
+                  <div className="text-left">
+                    <label className="block text-sm font-bold text-gray-700 mb-1">需求描述</label>
+                    <textarea className="w-full border-gray-300 rounded-lg p-3 h-32 border outline-none focus:ring-2 focus:ring-blue-500" placeholder="請描述欲解決的臨床問題與所需技術支援..."></textarea>
+                  </div>
+                  <button className="w-full py-4 bg-blue-700 text-white font-bold rounded-xl hover:bg-blue-800 shadow-lg transform transition active:scale-95">提交初步提案申請</button>
+                </form>
+              </div>
+            </div>
+          </div>
+        );
+
+        const NewsPage = () => (
+          <div className="max-w-5xl mx-auto py-12 px-4">
+            <h2 className="text-3xl font-bold text-gray-900 mb-8 border-l-8 border-blue-600 pl-4 font-black tracking-tight text-left">消息公告</h2>
+            <div className="space-y-4">
+              {[
+                { date: '2024.11.20', title: '【研討會】輔大 × 北榮：負責任 AI 臨床落地實務論壇', cat: '學術交流' },
+                { date: '2024.10.15', title: '本中心通過 113 年度醫策會智慧醫療全機構獎複審', cat: '中心成就' },
+                { date: '2024.09.01', title: '114 年度「理工醫產學合作案」即日起開放徵件', cat: '徵案公告' }
+              ].map((item, idx) => (
+                <div key={idx} className="group flex items-center bg-white p-5 rounded-xl border border-gray-100 hover:shadow-md transition-all cursor-pointer">
+                  <div className="w-24 text-gray-400 font-mono text-sm text-left">{item.date}</div>
+                  <div className="mx-4 px-3 py-1 bg-blue-50 text-blue-700 text-[10px] font-bold rounded">{item.cat}</div>
+                  <div className="flex-grow font-bold group-hover:text-blue-600 text-left">{item.title}</div>
+                  <Icon name="external-link" size={16} className="text-gray-300" />
+                </div>
+              ))}
+            </div>
+          </div>
+        );
+
+        const AwardsPage = () => (
+          <div className="max-w-5xl mx-auto py-12 px-4">
+            <h2 className="text-3xl font-bold text-center mb-12 font-black tracking-tight underline decoration-blue-500 underline-offset-8">得獎及認證成果</h2>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+              <div className="bg-white p-8 rounded-2xl border border-gray-100 shadow-sm relative overflow-hidden group">
+                <div className="absolute top-0 right-0 p-4 opacity-10 group-hover:scale-110 transition-transform">
+                  <Icon name="award" size={96} />
+                </div>
+                <h3 className="text-xl font-bold mb-4 text-blue-800 text-left">醫策會國家品質獎 (NHQA)</h3>
+                <ul className="space-y-3">
+                  <li className="flex items-center text-sm font-medium text-left"><div className="w-1.5 h-1.5 bg-blue-500 rounded-full mr-3"></div>2023 智慧醫院標竿獎：全院智慧監控中心</li>
+                  <li className="flex items-center text-sm font-medium text-left"><div className="w-1.5 h-1.5 bg-blue-500 rounded-full mr-3"></div>2022 智慧醫療優選：急診敗血症預警系統</li>
+                </ul>
+              </div>
+              <div className="bg-white p-8 rounded-2xl border border-gray-100 shadow-sm relative overflow-hidden group">
+                <div className="absolute top-0 right-0 p-4 opacity-10 group-hover:scale-110 transition-transform">
+                  <Icon name="award" size={96} className="text-yellow-500" />
+                </div>
+                <h3 className="text-xl font-bold mb-4 text-yellow-800 text-left">生策會國家新創獎 (SNQ)</h3>
+                <ul className="space-y-3">
+                  <li className="flex items-center text-sm font-medium text-left"><div className="w-1.5 h-1.5 bg-yellow-500 rounded-full mr-3"></div>第 20 屆：AI 輔助骨鬆篩檢系統</li>
+                  <li className="flex items-center text-sm font-medium text-left"><div className="w-1.5 h-1.5 bg-yellow-500 rounded-full mr-3"></div>第 19 屆：智慧麻醉風險預測平台</li>
+                </ul>
+              </div>
+            </div>
+          </div>
+        );
+
+        const ImpactCenterPage = () => (
+          <div className="py-20 px-4 bg-white">
+            <div className="max-w-4xl mx-auto text-center">
+              <h2 className="text-3xl font-black text-blue-900 mb-8 tracking-tight underline decoration-blue-500 decoration-8 underline-offset-8">AI 影響性研究中心</h2>
+              <p className="text-gray-600 mb-12 leading-relaxed max-w-2xl mx-auto font-medium">
+                我們關注的重點不僅是「AI 準不準」，而是「AI 進入醫院後，醫護工作是否更輕鬆？病患是否更安全？」。
+              </p>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-8 text-left">
+                <div className="p-8 bg-gray-50 rounded-[2.5rem] border border-gray-100 group hover:border-blue-200 transition-colors">
+                  <h4 className="font-bold text-blue-700 mb-2 flex items-center">
+                    <Icon name="activity" size={20} className="mr-2" /> 臨床價值分析
+                  </h4>
+                  <p className="text-sm text-gray-500">研究 AI 介入後病患的住院天數縮短情形與再入院率對比。</p>
+                </div>
+                <div className="p-8 bg-gray-50 rounded-[2.5rem] border border-gray-100 group hover:border-blue-200 transition-colors">
+                  <h4 className="font-bold text-blue-700 mb-2 flex items-center">
+                    <Icon name="users" size={20} className="mr-2" /> 人因工程評估
+                  </h4>
+                  <p className="text-sm text-gray-500">針對臨床介面使用行為進行眼動儀分析，確保 AI 工具不增加醫師負擔。</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        );
+
+        const root = ReactDOM.createRoot(document.getElementById('root'));
+        root.render(<App />);
+    </script>
+</body>
+</html>
